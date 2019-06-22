@@ -39,4 +39,5 @@ extern bool target_flash_program_array(uint16_t* dest, const uint16_t* data, siz
 extern void target_set_led(int on);
 
 extern void target_pre_main(void);
+
 #endif

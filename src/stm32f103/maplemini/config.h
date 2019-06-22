@@ -20,6 +20,7 @@
 #define CONFIG_H_INCLUDED
 
 #define APP_BASE_ADDRESS 0x08004000
+#define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
 #define DFU_UPLOAD_AVAILABLE 1
 #define DFU_DOWNLOAD_AVAILABLE 1
@@ -34,7 +35,12 @@
    sample PB8 on boot, since pulling it high will already
    trigger the ROM serial bootloader and prevent us from
    running anyways. */
-#define HAVE_BUTTON 0
+#define HAVE_BUTTON
+#define BUTTON_GPIO_PORT  GPIOB
+#define BUTTON_GPIO_PIN   GPIO8
+#define BUTTON_ACTIVE_HIGH
+
+#define UF2_FAMILY 0x5ee21072
 
 #define HAVE_USB_PULLUP_CONTROL 1
 #define USB_PULLUP_GPIO_PORT GPIOB
@@ -45,5 +51,7 @@
 #define USES_GPIOA 0
 #define USES_GPIOB 1
 #define USES_GPIOC 0
+
+#define DOUBLE_TAP
 
 #endif

@@ -391,6 +391,7 @@ static void scsi_format_unit(usbd_mass_storage *ms,
 			     struct usb_msc_trans *trans,
 			     enum trans_event event)
 {
+/*
 	if (EVENT_CBW_VALID == event) {
 		uint32_t i;
 
@@ -402,6 +403,7 @@ static void scsi_format_unit(usbd_mass_storage *ms,
 
 		set_sbc_status_good(ms);
 	}
+*/
 }
 
 static void scsi_request_sense(usbd_mass_storage *ms,

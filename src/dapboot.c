@@ -24,10 +24,33 @@
 #include "target.h"
 #include "usb_conf.h"
 #include "webusb.h"
-#include "winusb.h"
+//#include "winusb.h"
 #include "config.h"
 
 #include <libopencm3/usb/msc.h>
+
+void * memcpy(void *dest, const void *src, size_t n)
+{
+   // Typecast src and dest addresses to (char *)
+   char *csrc = (char *)src;
+   char *cdest = (char *)dest;
+
+   // Copy contents of src[] to dest[]
+   for (uint16_t i=0; i<n; i++)
+       cdest[i] = csrc[i];
+   return dest;
+}
+
+size_t strlen(const char *s)
+{
+   size_t len = 0;
+    while(*s != 0) {
+        s++;
+        len++;
+    }
+    return len;
+}
+
 
 static inline void __set_MSP(uint32_t topOfMainStack) {
     asm("msr msp, %0" : : "r" (topOfMainStack));
@@ -66,10 +89,10 @@ extern int msc_started;
 int main(void) {
     bool appValid = validate_application();
 
-    if (appValid && target_get_force_app()) {
-         jump_to_application();
-         return 0;
-    }
+    //if (appValid && target_get_force_app()) {
+    //     jump_to_application();
+    //     return 0;
+    //}
     
     /* Setup clocks */
     target_clock_setup();
@@ -80,17 +103,17 @@ int main(void) {
     if (target_get_force_bootloader() || !appValid) {
         /* Setup USB */
         {
-            char serial[USB_SERIAL_NUM_LENGTH+1];
-            serial[0] = '\0';
-            target_get_serial_number(serial, USB_SERIAL_NUM_LENGTH);
-            usb_set_serial_number(serial);
+            //char serial[USB_SERIAL_NUM_LENGTH+1];
+            //serial[0] = '\0';
+            //target_get_serial_number(serial, USB_SERIAL_NUM_LENGTH);
+            //usb_set_serial_number(serial);
         }
 
         usbd_device* usbd_dev = usb_setup();
         //dfu_setup(usbd_dev, &target_manifest_app, NULL, NULL);
-       	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "Example Ltd", "UF2 Bootloader",
+       	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "ACME", "UF2 Bootloader",
 		    "42.00", UF2_NUM_BLOCKS, read_block, write_block);
-        winusb_setup(usbd_dev);
+        //winusb_setup(usbd_dev);
 
         int cycleCount = 0;
         int br = 500;

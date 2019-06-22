@@ -93,10 +93,6 @@ static const struct usb_interface interfaces[] = {
     /* DFU interface */
     {
         .num_altsetting = 1,
-        .altsetting = &dfu_iface,
-    },
-    {
-        .num_altsetting = 1,
         .altsetting = &msc_iface,
     },    
 };
@@ -126,13 +122,15 @@ static const struct usb_bos_descriptor bos = {
     .capabilities = capabilities
 };
 
+
 static char serial_number[USB_SERIAL_NUM_LENGTH+1];
 
 static const char *usb_strings[] = {
-    "Devanarchy",
-    "DAPBoot DFU Bootloader",
-    serial_number,
-    "DAPBoot DFU"
+    "Dev",
+    "DAPBoot",
+//    serial_number,
+    "1",
+    "DAPBoot"
 };
 
 /* Buffer to be used for control requests. */

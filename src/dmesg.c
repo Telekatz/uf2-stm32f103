@@ -26,6 +26,8 @@ DEALINGS IN THE SOFTWARE.
 #include <string.h>
 #include "libopencm3/cm3/cortex.h"
 
+#if DEVICE_DMESG_BUFFER_SIZE > 0
+
 CodalLogStore codalLogStore;
 
 static void logwrite(const char *msg);
@@ -168,3 +170,4 @@ void codal_vdmesg(const char *format, va_list ap)
 
     }
 }
+#endif

@@ -76,9 +76,9 @@ const char indexFile[] = //
     "</html>\n";
 
 static const struct TextFile info[] = {
-    {.name = "INFO_UF2TXT", .content = infoUf2File},
-    {.name = "INDEX   HTM", .content = indexFile},
-    {.name = "CURRENT UF2"},
+//    {.name = "INFO_UF2TXT", .content = infoUf2File},
+//    {.name = "INDEX   HTM", .content = indexFile},
+//    {.name = "CURRENT UF2"},
 };
 #define NUM_INFO (int)(sizeof(info) / sizeof(info[0]))
 
@@ -137,14 +137,14 @@ static void flushFlash(void) {
     }
 
     DBG("Flush at %x", flashAddr);
-    if (memcmp(flashBuf, (void *)flashAddr, FLASH_PAGE_SIZE) != 0) {
+//    if (memcmp(flashBuf, (void *)flashAddr, FLASH_PAGE_SIZE) != 0) {
         DBG("Write flush at %x", flashAddr);
 
         target_flash_unlock();
         bool ok = target_flash_program_array((void *)flashAddr, (void*)flashBuf, FLASH_PAGE_SIZE / 2);
         target_flash_lock();
         (void)ok;
-    }
+ //   }
 
     flashAddr = NO_CACHE;
 }
@@ -192,7 +192,11 @@ static void padded_memcpy(char *dst, const char *src, int len) {
 }
 
 int read_block(uint32_t block_no, uint8_t *data) {
-    memset(data, 0, 512);
+    for(uint16_t x=0; x<512;x++) {
+      data[x] = 0;
+    }
+
+    //memset(data, 0, 512);
     uint32_t sectionIdx = block_no;
 
     if (block_no == 0) {
@@ -232,9 +236,10 @@ int read_block(uint32_t block_no, uint8_t *data) {
         }
     } else {
         sectionIdx -= START_CLUSTERS;
-        if (sectionIdx < NUM_INFO - 1) {
+//        if (sectionIdx < NUM_INFO - 1) {
+        if (sectionIdx < NUM_INFO) {
             memcpy(data, info[sectionIdx].content, strlen(info[sectionIdx].content));
-        } else {
+/*        } else {
             sectionIdx -= NUM_INFO - 1;
             uint32_t addr = sectionIdx * 256;
             if (addr < flashSize()) {
@@ -247,7 +252,7 @@ int read_block(uint32_t block_no, uint8_t *data) {
                 bl->targetAddr = addr | 0x8000000;
                 bl->payloadSize = 256;
                 memcpy(bl->data, (void *)addr, bl->payloadSize);
-            }
+            }*/
         }
     }
 
@@ -308,6 +313,7 @@ static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet,
     if (!isSet && !quiet) {
         uf2_timer_start(500);
     }
+
 }
 
 

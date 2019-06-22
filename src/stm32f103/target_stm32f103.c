@@ -50,8 +50,8 @@ _Static_assert((FLASH_BASE + FLASH_SIZE_OVERRIDE >= APP_BASE_ADDRESS),
                "Incompatible flash size");
 #endif
 
-static const uint32_t CMD_BOOT = 0x544F4F42UL;
-static const uint32_t CMD_APP = 0x3f82722aUL;
+//static const uint32_t CMD_BOOT = 0x544F4F42UL;
+//static const uint32_t CMD_APP = 0x3f82722aUL;
 
 //#define USE_HSI 1
 
@@ -111,16 +111,16 @@ void target_gpio_setup(void) {
 #endif
 
     /* Setup the internal pull-up/pull-down for the button */
-#if HAVE_BUTTON
+#ifdef HAVE_BUTTON
     {
         const uint8_t mode = GPIO_MODE_INPUT;
         const uint8_t conf = GPIO_CNF_INPUT_PULL_UPDOWN;
         gpio_set_mode(BUTTON_GPIO_PORT, mode, conf, BUTTON_GPIO_PIN);
-        if (BUTTON_ACTIVE_HIGH) {
-            gpio_clear(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
-        } else {
-            gpio_set(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
-        }
+#ifdef BUTTON_ACTIVE_HIGH
+        gpio_clear(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
+#else
+        gpio_set(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
+#endif
     }
 #endif
 
@@ -185,15 +185,15 @@ const usbd_driver* target_usb_init(void) {
 }
 
 void target_manifest_app(void) {
-    backup_write(BKP0, CMD_APP);
+    //backup_write(BKP0, CMD_APP);
     scb_reset_system();
 }
 
 bool target_get_force_app(void) {
-    if (backup_read(BKP0) == CMD_APP) {
-        backup_write(BKP0, 0);
-        return true;        
-    }
+    //if (backup_read(BKP0) == CMD_APP) {
+    //    backup_write(BKP0, 0);
+    //    return true;
+    //}
     return false;
 }
 
@@ -201,47 +201,49 @@ bool target_get_force_bootloader(void) {
     /* Enable GPIO clocks */
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
-    rcc_periph_clock_enable(RCC_GPIOC);
+    //rcc_periph_clock_enable(RCC_GPIOC);
 
-    bool force = true;
+    bool force = false;
     /* Check the RTC backup register */
-    uint32_t cmd = backup_read(BKP0);
-    if (cmd == CMD_BOOT) {
-        // asked to go into bootloader?
-        backup_write(BKP0, 0);
-        return true;
-    }
-    if (cmd == CMD_APP) {        
-        // we were told to reset into app
-        backup_write(BKP0, 0);
-        return false;
-    }
+    //uint32_t cmd = backup_read(BKP0);
+    //if (cmd == CMD_BOOT) {
+    //    // asked to go into bootloader?
+    //    backup_write(BKP0, 0);
+    //    return true;
+    //}
+    //if (cmd == CMD_APP) {
+    //    // we were told to reset into app
+    //    backup_write(BKP0, 0);
+    //    return false;
+    //}
 
 #ifdef DOUBLE_TAP
-    target_set_led(1);
     // wait for second press on reset
-    backup_write(BKP0, CMD_BOOT);
-    for (int i = 0; i < 3500000; ++i)
-        asm("nop");
-    backup_write(BKP0, 0);
-    target_set_led(0);
-    force = false;
+    //backup_write(BKP0, CMD_BOOT);
+    for(int x = 0; x< 10;x++) {
+      target_set_led(1);
+      sleep_us(100000);
+      target_set_led(0);
+      sleep_us(100000);
+    }
+        //backup_write(BKP0, 0);
+    //force = false;
 #else
     // a reset now should go into app
     backup_write(BKP0, CMD_APP);
 #endif
 
-#if HAVE_BUTTON
+#ifdef HAVE_BUTTON
     /* Check if the user button is held down */
-    if (BUTTON_ACTIVE_HIGH) {
+#ifdef BUTTON_ACTIVE_HIGH
         if (gpio_get(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) {
             force = true;
         }
-    } else {
+#else
         if (!gpio_get(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) {
             force = true;
         }
-    }
+#endif
 #endif
 
     return force;
