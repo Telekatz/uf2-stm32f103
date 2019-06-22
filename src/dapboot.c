@@ -24,33 +24,9 @@
 #include "target.h"
 #include "usb_conf.h"
 #include "webusb.h"
-//#include "winusb.h"
 #include "config.h"
 
 #include <libopencm3/usb/msc.h>
-
-void * memcpy(void *dest, const void *src, size_t n)
-{
-   // Typecast src and dest addresses to (char *)
-   char *csrc = (char *)src;
-   char *cdest = (char *)dest;
-
-   // Copy contents of src[] to dest[]
-   for (uint16_t i=0; i<n; i++)
-       cdest[i] = csrc[i];
-   return dest;
-}
-
-size_t strlen(const char *s)
-{
-   size_t len = 0;
-    while(*s != 0) {
-        s++;
-        len++;
-    }
-    return len;
-}
-
 
 static inline void __set_MSP(uint32_t topOfMainStack) {
     asm("msr msp, %0" : : "r" (topOfMainStack));
@@ -97,6 +73,8 @@ int main(void) {
     /* Setup clocks */
     target_clock_setup();
 
+    trace_setup();
+
     /* Initialize GPIO/LEDs if needed */
     target_gpio_setup();
 
@@ -111,8 +89,8 @@ int main(void) {
 
         usbd_device* usbd_dev = usb_setup();
         //dfu_setup(usbd_dev, &target_manifest_app, NULL, NULL);
-       	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "ACME", "UF2 Bootloader",
-		    "42.00", UF2_NUM_BLOCKS, read_block, write_block);
+       	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "A", "MSC",
+		    "1", UF2_NUM_BLOCKS, read_block, write_block);
         //winusb_setup(usbd_dev);
 
         int cycleCount = 0;

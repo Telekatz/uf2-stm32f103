@@ -126,11 +126,11 @@ static const struct usb_bos_descriptor bos = {
 static char serial_number[USB_SERIAL_NUM_LENGTH+1];
 
 static const char *usb_strings[] = {
-    "Dev",
-    "DAPBoot",
+    "Maple",
+    "Maple Bootloader",
 //    serial_number,
     "1",
-    "DAPBoot"
+    "MapleBoot"
 };
 
 /* Buffer to be used for control requests. */

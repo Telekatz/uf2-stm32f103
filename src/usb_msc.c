@@ -753,7 +753,7 @@ static void msc_data_tx_cb(usbd_device *usbd_dev, uint8_t ep)
 			trans->csw_sent += len;
 		} else if (sizeof(struct usb_msc_csw) == trans->csw_sent) {
 			/* End of transaction */
-			trans->lba_start = 0xffffffff;
+		  trans->lba_start = 0xffffffff;
 			trans->block_count = 0;
 			trans->current_block = 0;
 			trans->cbw_cnt = 0;

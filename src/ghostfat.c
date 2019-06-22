@@ -137,14 +137,14 @@ static void flushFlash(void) {
     }
 
     DBG("Flush at %x", flashAddr);
-//    if (memcmp(flashBuf, (void *)flashAddr, FLASH_PAGE_SIZE) != 0) {
+    if (memcmp(flashBuf, (void *)flashAddr, FLASH_PAGE_SIZE) != 0) {
         DBG("Write flush at %x", flashAddr);
 
         target_flash_unlock();
         bool ok = target_flash_program_array((void *)flashAddr, (void*)flashBuf, FLASH_PAGE_SIZE / 2);
         target_flash_lock();
         (void)ok;
- //   }
+    }
 
     flashAddr = NO_CACHE;
 }
@@ -223,16 +223,16 @@ int read_block(uint32_t block_no, uint8_t *data) {
     } else if (block_no < START_CLUSTERS) {
         sectionIdx -= START_ROOTDIR;
         if (sectionIdx == 0) {
-            DirEntry *d = (void *)data;
-            padded_memcpy(d->name, (const char *)BootBlock.VolumeLabel, 11);
-            d->attrs = 0x28;
-            for (int i = 0; i < NUM_INFO; ++i) {
-                d++;
-                const struct TextFile *inf = &info[i];
-                d->size = inf->content ? strlen(inf->content) : UF2_SIZE;
-                d->startCluster = i + 2;
-                padded_memcpy(d->name, inf->name, 11);
-            }
+            //DirEntry *d = (void *)data;
+            //padded_memcpy(d->name, (const char *)BootBlock.VolumeLabel, 11);
+            //d->attrs = 0x28;
+            //for (int i = 0; i < NUM_INFO; ++i) {
+            //    d++;
+            //    const struct TextFile *inf = &info[i];
+            //    d->size = inf->content ? strlen(inf->content) : UF2_SIZE;
+            //    d->startCluster = i + 2;
+            //    padded_memcpy(d->name, inf->name, 11);
+            //}
         }
     } else {
         sectionIdx -= START_CLUSTERS;
@@ -316,13 +316,32 @@ static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet,
 
 }
 
+static void write_block_bin(uint32_t block_no, const uint8_t *data, bool quiet, WriteState *state) {
+    static bool binStart=0;
+    static uint32_t targetAddr = USER_FLASH_START;
+
+    if (!binStart && (((data[2]+data[3]<<8) & 0x2FFE) == 0x2000)) {
+      binStart = 1;
+    }
+
+    if(!binStart) {
+      return;
+    }
+    flash_write(targetAddr, data, 512);
+    targetAddr+=512;
+    uf2_timer_start(500);
+
+}
 
 WriteState wrState;
 
 int write_block(uint32_t lba, const uint8_t *copy_from)
 {
+    DBG("Write lba: %x", lba);
     target_set_led((wrState.numWritten * 17) & 1);
-    write_block_core(lba, copy_from, false, &wrState);
+    if(lba > 246) {
+      write_block_bin(lba, copy_from, false, &wrState);
+    }
     target_set_led(0);
     return 0;
 }

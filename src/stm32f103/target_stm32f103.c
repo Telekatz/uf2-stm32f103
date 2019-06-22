@@ -55,6 +55,35 @@ _Static_assert((FLASH_BASE + FLASH_SIZE_OVERRIDE >= APP_BASE_ADDRESS),
 
 //#define USE_HSI 1
 
+void * memcpy(void *dest, const void *src, size_t n)
+{
+   // Typecast src and dest addresses to (char *)
+   char *csrc = (char *)src;
+   char *cdest = (char *)dest;
+
+   // Copy contents of src[] to dest[]
+   for (uint16_t i=0; i<n; i++)
+       cdest[i] = csrc[i];
+   return dest;
+}
+
+size_t strlen(const char *s)
+{
+   size_t len = 0;
+    while(*s != 0) {
+        s++;
+        len++;
+    }
+    return len;
+}
+
+int memcmp(const void *vl, const void *vr, size_t n)
+{
+    const unsigned char *l=vl, *r=vr;
+    for (; n && *l == *r; n--, l++, r++);
+    return n ? *l-*r : 0;
+}
+
 void target_clock_setup(void) {
 #ifdef USE_HSI
     /* Set the system clock to 48MHz from the internal RC oscillator.
@@ -90,7 +119,18 @@ static void sleep_us(int us){
 }
 
 void target_gpio_setup(void) {
-    /* Enable GPIO clocks */
+#if 1
+  rcc_periph_clock_enable(RCC_GPIOB);
+
+  //gpio_clear(LED_GPIO_PORT, LED_GPIO_PIN);
+  //gpio_clear(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
+  gpio_set(USB_PULLUP_GPIO_PORT, USB_PULLUP_GPIO_PIN);
+
+  GPIO_CRL(GPIOB) = 0x44484414;
+  GPIO_CRH(GPIOB) = 0x44444458;
+
+#else
+  /* Enable GPIO clocks */
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
@@ -116,7 +156,7 @@ void target_gpio_setup(void) {
         const uint8_t mode = GPIO_MODE_INPUT;
         const uint8_t conf = GPIO_CNF_INPUT_PULL_UPDOWN;
         gpio_set_mode(BUTTON_GPIO_PORT, mode, conf, BUTTON_GPIO_PIN);
-#ifdef BUTTON_ACTIVE_HIGH
+#if BUTTON_ACTIVE_HIGH
         gpio_clear(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
 #else
         gpio_set(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
@@ -145,6 +185,8 @@ void target_gpio_setup(void) {
     }
 #endif
 
+#endif
+
 #if 0
     while(1) {
         target_set_led(1);
@@ -160,6 +202,7 @@ void target_gpio_setup(void) {
     //gpio_set(GPIOC, (1 << 4));
     sleep_us(20000);
 #endif
+
 }
 
 const usbd_driver* target_usb_init(void) {
@@ -199,7 +242,7 @@ bool target_get_force_app(void) {
 
 bool target_get_force_bootloader(void) {
     /* Enable GPIO clocks */
-    rcc_periph_clock_enable(RCC_GPIOA);
+    //rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     //rcc_periph_clock_enable(RCC_GPIOC);
 
@@ -220,11 +263,11 @@ bool target_get_force_bootloader(void) {
 #ifdef DOUBLE_TAP
     // wait for second press on reset
     //backup_write(BKP0, CMD_BOOT);
-    for(int x = 0; x< 10;x++) {
+    for(int x = 0; x< 8;x++) {
       target_set_led(1);
-      sleep_us(100000);
+      sleep_us(125000);
       target_set_led(0);
-      sleep_us(100000);
+      sleep_us(125000);
     }
         //backup_write(BKP0, 0);
     //force = false;

@@ -25,23 +25,12 @@ DEALINGS IN THE SOFTWARE.
 #ifndef CODAL_DMESG_H
 #define CODAL_DMESG_H
 
-#define DEVICE_DMESG_BUFFER_SIZE 0
+//#define DEVICE_DMESG
 
-#if DEVICE_DMESG_BUFFER_SIZE > 0
+#ifdef DEVICE_DMESG
 
 #include <stdint.h>
 #include <stdarg.h>
-
-#if DEVICE_DMESG_BUFFER_SIZE < 256
-#error "Too small DMESG buffer"
-#endif
-
-typedef struct CodalLogStore
-{
-    uint32_t ptr;
-    char buffer[DEVICE_DMESG_BUFFER_SIZE];
-} CodalLogStore;
-extern CodalLogStore codalLogStore;
 
 /**
   * Log formatted message to an internal buffer.
@@ -67,6 +56,7 @@ extern CodalLogStore codalLogStore;
   */
 void codal_dmesg(const char *format, ...);
 void codal_vdmesg(const char *format, va_list ap);
+void trace_setup(void);
 
 #define DMESG  codal_dmesg
 

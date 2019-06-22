@@ -26,30 +26,58 @@ DEALINGS IN THE SOFTWARE.
 #include <string.h>
 #include "libopencm3/cm3/cortex.h"
 
-#if DEVICE_DMESG_BUFFER_SIZE > 0
+#include <libopencm3/stm32/dbgmcu.h>
+#include <libopencm3/cm3/scs.h>
+#include <libopencm3/cm3/tpiu.h>
+#include <libopencm3/cm3/itm.h>
 
-CodalLogStore codalLogStore;
+void trace_setup(void)
+{
+#ifdef DEVICE_DMESG
+  /* Enable trace subsystem (we'll use ITM and TPIU). */
+  SCS_DEMCR |= SCS_DEMCR_TRCENA;
 
+  /* Use Manchester code for asynchronous transmission. */
+  //TPIU_SPPR = TPIU_SPPR_ASYNC_MANCHESTER;
+  //TPIU_ACPR = 7;
+
+  /* Formatter and flush control. */
+  //TPIU_FFCR &= ~TPIU_FFCR_ENFCONT;
+
+  /* Enable TRACESWO pin for async mode. */
+  DBGMCU_CR = DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE_ASYNC;
+
+  /* Unlock access to ITM registers. */
+  /* FIXME: Magic numbers... Is this Cortex-M3 generic? */
+  *((volatile uint32_t *)0xE0000FB0) = 0xC5ACCE55;
+
+  /* Enable ITM with ID = 1. */
+  ITM_TCR = (1 << 16) | ITM_TCR_ITMENA;
+  /* Enable stimulus port 1. */
+  ITM_TER[0] = 1;
+#endif
+}
+
+#ifdef DEVICE_DMESG
 static void logwrite(const char *msg);
+
+static void trace_send_blocking(char c)
+{
+  while (!(ITM_STIM8(0) & ITM_STIM_FIFOREADY))
+    ;
+
+  ITM_STIM8(0) = c;
+}
+
 
 static void logwriten(const char *msg, int l)
 {
-    if (codalLogStore.ptr + l >= sizeof(codalLogStore.buffer))
-    {
-        const int jump = sizeof(codalLogStore.buffer) / 4;
-        codalLogStore.ptr -= jump;
-        memmove(codalLogStore.buffer, codalLogStore.buffer + jump, codalLogStore.ptr);
-        // zero-out the rest so it looks OK in the debugger
-        memset(codalLogStore.buffer + codalLogStore.ptr, 0, sizeof(codalLogStore.buffer) - codalLogStore.ptr);
-    }
-    if (l + codalLogStore.ptr >= sizeof(codalLogStore.buffer))
-    {
-        logwrite("DMESG line too long!\n");
-        return;
-    }
-    memcpy(codalLogStore.buffer + codalLogStore.ptr, msg, l);
-    codalLogStore.ptr += l;
-    codalLogStore.buffer[codalLogStore.ptr] = 0;
+  for(int x=0; x<l;x++) {
+
+    trace_send_blocking(*msg);
+
+    msg++;
+  }
 }
 
 static void logwrite(const char *msg)
@@ -171,3 +199,4 @@ void codal_vdmesg(const char *format, va_list ap)
     }
 }
 #endif
+

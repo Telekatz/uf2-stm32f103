@@ -19,7 +19,7 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08004000
+#define APP_BASE_ADDRESS 0x08002000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
 #define DFU_UPLOAD_AVAILABLE 1
@@ -36,9 +36,9 @@
    trigger the ROM serial bootloader and prevent us from
    running anyways. */
 #define HAVE_BUTTON
-#define BUTTON_GPIO_PORT  GPIOB
-#define BUTTON_GPIO_PIN   GPIO8
-#define BUTTON_ACTIVE_HIGH
+#define BUTTON_GPIO_PORT    GPIOB
+#define BUTTON_GPIO_PIN     GPIO8
+#define BUTTON_ACTIVE_HIGH  1
 
 #define UF2_FAMILY 0x5ee21072
 
