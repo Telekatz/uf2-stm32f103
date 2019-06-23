@@ -27,7 +27,7 @@ enum BackupRegister {
     BKP4,
 };
 
-extern void backup_write(enum BackupRegister reg, uint32_t value);
-extern uint32_t backup_read(enum BackupRegister reg);
+extern void backup_write(uint16_t value);
+extern uint16_t backup_read();
 
 #endif

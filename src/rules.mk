@@ -164,7 +164,7 @@ locm3: $(LIB_DIR)/lib$(LIBNAME).a
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
 	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).tmpbin
-	$(Q)(cat $(*).tmpbin; cat /dev/zero) | head -c 16384 > $(*).bin
+	$(Q)(cat $(*).tmpbin; cat /dev/zero) | head -c 8192 > $(*).bin
 
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"

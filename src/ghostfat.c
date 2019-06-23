@@ -236,10 +236,11 @@ int read_block(uint32_t block_no, uint8_t *data) {
         }
     } else {
         sectionIdx -= START_CLUSTERS;
+/*
 //        if (sectionIdx < NUM_INFO - 1) {
         if (sectionIdx < NUM_INFO) {
             memcpy(data, info[sectionIdx].content, strlen(info[sectionIdx].content));
-/*        } else {
+        } else {
             sectionIdx -= NUM_INFO - 1;
             uint32_t addr = sectionIdx * 256;
             if (addr < flashSize()) {
@@ -252,8 +253,8 @@ int read_block(uint32_t block_no, uint8_t *data) {
                 bl->targetAddr = addr | 0x8000000;
                 bl->payloadSize = 256;
                 memcpy(bl->data, (void *)addr, bl->payloadSize);
-            }*/
-        }
+            }
+        }*/
     }
 
     return 0;
@@ -316,11 +317,13 @@ static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet,
 
 }
 
-static void write_block_bin(uint32_t block_no, const uint8_t *data, bool quiet, WriteState *state) {
+static void write_block_bin(uint32_t block_no, const uint8_t *data) {
     static bool binStart=0;
     static uint32_t targetAddr = USER_FLASH_START;
 
-    if (!binStart && (((data[2]+data[3]<<8) & 0x2FFE) == 0x2000)) {
+    (void)block_no;
+
+    if (!binStart && (((data[2]+(data[3]<<8)) & 0x2FFE) == 0x2000)) {
       binStart = 1;
     }
 
@@ -338,9 +341,9 @@ WriteState wrState;
 int write_block(uint32_t lba, const uint8_t *copy_from)
 {
     DBG("Write lba: %x", lba);
-    target_set_led((wrState.numWritten * 17) & 1);
+    target_set_led(1);
     if(lba > 246) {
-      write_block_bin(lba, copy_from, false, &wrState);
+      write_block_bin(lba, copy_from);
     }
     target_set_led(0);
     return 0;

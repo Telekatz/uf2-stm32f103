@@ -50,8 +50,11 @@ _Static_assert((FLASH_BASE + FLASH_SIZE_OVERRIDE >= APP_BASE_ADDRESS),
                "Incompatible flash size");
 #endif
 
-//static const uint32_t CMD_BOOT = 0x544F4F42UL;
-//static const uint32_t CMD_APP = 0x3f82722aUL;
+#define RTC_BOOTLOADER_FLAG 0x424C
+#define RTC_BOOTLOADER_JUST_UPLOADED 0x424D
+
+static const uint16_t CMD_BOOT = RTC_BOOTLOADER_FLAG;
+static const uint16_t CMD_APP = RTC_BOOTLOADER_JUST_UPLOADED;
 
 //#define USE_HSI 1
 
@@ -84,6 +87,7 @@ int memcmp(const void *vl, const void *vr, size_t n)
     return n ? *l-*r : 0;
 }
 
+#if 0
 void target_clock_setup(void) {
 #ifdef USE_HSI
     /* Set the system clock to 48MHz from the internal RC oscillator.
@@ -99,6 +103,7 @@ void target_clock_setup(void) {
     #endif
 #endif
 }
+#endif
 
 void target_set_led(int on) {
 #if HAVE_LED
@@ -118,18 +123,9 @@ static void sleep_us(int us){
     }
 }
 
+#if 0
 void target_gpio_setup(void) {
-#if 1
-  rcc_periph_clock_enable(RCC_GPIOB);
 
-  //gpio_clear(LED_GPIO_PORT, LED_GPIO_PIN);
-  //gpio_clear(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN);
-  gpio_set(USB_PULLUP_GPIO_PORT, USB_PULLUP_GPIO_PIN);
-
-  GPIO_CRL(GPIOB) = 0x44484414;
-  GPIO_CRH(GPIOB) = 0x44444458;
-
-#else
   /* Enable GPIO clocks */
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
@@ -185,7 +181,6 @@ void target_gpio_setup(void) {
     }
 #endif
 
-#endif
 
 #if 0
     while(1) {
@@ -204,6 +199,7 @@ void target_gpio_setup(void) {
 #endif
 
 }
+#endif
 
 const usbd_driver* target_usb_init(void) {
     rcc_periph_reset_pulse(RST_USB);
@@ -228,15 +224,17 @@ const usbd_driver* target_usb_init(void) {
 }
 
 void target_manifest_app(void) {
-    //backup_write(BKP0, CMD_APP);
-    scb_reset_system();
+    backup_write(CMD_APP);
+    //scb_reset_system();
+    SCB_AIRCR = SCB_AIRCR_VECTKEY | SCB_AIRCR_SYSRESETREQ;
+    while (1);
 }
 
 bool target_get_force_app(void) {
-    //if (backup_read(BKP0) == CMD_APP) {
-    //    backup_write(BKP0, 0);
-    //    return true;
-    //}
+    if (backup_read() == CMD_APP) {
+        backup_write(0);
+        return true;
+    }
     return false;
 }
 
@@ -248,37 +246,32 @@ bool target_get_force_bootloader(void) {
 
     bool force = false;
     /* Check the RTC backup register */
-    //uint32_t cmd = backup_read(BKP0);
-    //if (cmd == CMD_BOOT) {
-    //    // asked to go into bootloader?
-    //    backup_write(BKP0, 0);
-    //    return true;
-    //}
-    //if (cmd == CMD_APP) {
-    //    // we were told to reset into app
-    //    backup_write(BKP0, 0);
-    //    return false;
-    //}
+    uint16_t cmd = backup_read();
+    if (cmd == CMD_BOOT) {
+        // asked to go into bootloader?
+        backup_write(0);
+        return true;
+    }
 
 #ifdef DOUBLE_TAP
     // wait for second press on reset
-    //backup_write(BKP0, CMD_BOOT);
-    for(int x = 0; x< 8;x++) {
+    backup_write(CMD_BOOT);
+    for(int x = 0; x< 10;x++) {
       target_set_led(1);
-      sleep_us(125000);
+      sleep_us(60000);
       target_set_led(0);
-      sleep_us(125000);
+      sleep_us(60000);
     }
-        //backup_write(BKP0, 0);
+    backup_write(0);
     //force = false;
 #else
     // a reset now should go into app
     backup_write(BKP0, CMD_APP);
 #endif
 
-#ifdef HAVE_BUTTON
+#if HAVE_BUTTON
     /* Check if the user button is held down */
-#ifdef BUTTON_ACTIVE_HIGH
+#if BUTTON_ACTIVE_HIGH
         if (gpio_get(BUTTON_GPIO_PORT, BUTTON_GPIO_PIN)) {
             force = true;
         }
@@ -313,17 +306,21 @@ size_t target_get_max_firmware_size(void) {
     return (flash_end >= flash_start) ? (size_t)(flash_end - flash_start) : 0;
 }
 
+#if 0
 void target_relocate_vector_table(void) {
     SCB_VTOR = APP_BASE_ADDRESS & 0xFFFF;
 }
+#endif
 
 void target_flash_unlock(void) {
     flash_unlock();
 }
 
+#if 0
 void target_flash_lock(void) {
     flash_lock();
 }
+#endif
 
 static inline uint16_t* get_flash_page_address(uint16_t* dest) {
     return (uint16_t*)(((uint32_t)dest / FLASH_PAGE_SIZE) * FLASH_PAGE_SIZE);

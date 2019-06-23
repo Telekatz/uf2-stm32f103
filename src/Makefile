@@ -16,7 +16,7 @@
 
 -include local.mk
 
-BINARY = uf2boot
+BINARY = MSCboot
 OPENCM3_DIR = ../libopencm3
 
 UF2_VERSION_BASE = $(shell git describe --dirty --always --tags)

@@ -19,7 +19,7 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08004000
+#define APP_BASE_ADDRESS 0x08002000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
 #define DFU_UPLOAD_AVAILABLE 1
@@ -46,6 +46,12 @@
 #undef BOARD_ID
 #define BOARD_ID "STM32F103-blue-pill-v0"
 
-//#define DOUBLE_TAP
+#define DOUBLE_TAP
+
+#define target_gpio_setup()     {\
+                                  rcc_periph_clock_enable(RCC_GPIOA);\
+                                  rcc_periph_clock_enable(RCC_GPIOC);\
+                                   GPIO_CRH(GPIOC) = 0x44144444;\
+                                  }
 
 #endif

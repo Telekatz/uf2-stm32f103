@@ -22,8 +22,6 @@
 #define APP_BASE_ADDRESS 0x08002000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
 
 #define HAVE_LED 1
 #define LED_GPIO_PORT GPIOB
@@ -35,10 +33,6 @@
    sample PB8 on boot, since pulling it high will already
    trigger the ROM serial bootloader and prevent us from
    running anyways. */
-#define HAVE_BUTTON
-#define BUTTON_GPIO_PORT    GPIOB
-#define BUTTON_GPIO_PIN     GPIO8
-#define BUTTON_ACTIVE_HIGH  1
 
 #define UF2_FAMILY 0x5ee21072
 
@@ -53,5 +47,12 @@
 #define USES_GPIOC 0
 
 #define DOUBLE_TAP
+
+#define target_gpio_setup()     {\
+                                  rcc_periph_clock_enable(RCC_GPIOB);\
+                                  gpio_set(USB_PULLUP_GPIO_PORT, USB_PULLUP_GPIO_PIN);\
+                                   GPIO_CRL(GPIOB) = 0x44484414;\
+                                   GPIO_CRH(GPIOB) = 0x44444454;\
+                                  }
 
 #endif

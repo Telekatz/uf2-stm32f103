@@ -48,7 +48,7 @@ static void jump_to_application(void) {
     target_relocate_vector_table();
 
     /* Do any necessary early setup for the application */
-    target_pre_main();
+    //target_pre_main();
 
     /* Initialize the application's stack pointer */
     __set_MSP((uint32_t)(app_vector_table->initial_sp_value));
@@ -65,15 +65,18 @@ extern int msc_started;
 int main(void) {
     bool appValid = validate_application();
 
-    //if (appValid && target_get_force_app()) {
-    //     jump_to_application();
-    //     return 0;
-    //}
+    if (appValid && target_get_force_app()) {
+         jump_to_application();
+         return 0;
+    }
     
     /* Setup clocks */
     target_clock_setup();
 
+
+#ifdef DEVICE_DMESG
     trace_setup();
+#endif
 
     /* Initialize GPIO/LEDs if needed */
     target_gpio_setup();
@@ -123,6 +126,7 @@ int main(void) {
             }
 
             usbd_poll(usbd_dev);
+
         }
     } else {
         jump_to_application();

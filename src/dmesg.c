@@ -31,9 +31,9 @@ DEALINGS IN THE SOFTWARE.
 #include <libopencm3/cm3/tpiu.h>
 #include <libopencm3/cm3/itm.h>
 
+#ifdef DEVICE_DMESG
 void trace_setup(void)
 {
-#ifdef DEVICE_DMESG
   /* Enable trace subsystem (we'll use ITM and TPIU). */
   SCS_DEMCR |= SCS_DEMCR_TRCENA;
 
@@ -55,10 +55,9 @@ void trace_setup(void)
   ITM_TCR = (1 << 16) | ITM_TCR_ITMENA;
   /* Enable stimulus port 1. */
   ITM_TER[0] = 1;
-#endif
+
 }
 
-#ifdef DEVICE_DMESG
 static void logwrite(const char *msg);
 
 static void trace_send_blocking(char c)
