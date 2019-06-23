@@ -1,10 +1,8 @@
-# UF2 bootloader for STM32F103
+# MSC bootloader for STM32F103
 
-This project was initially forked off https://github.com/devanlai/dapboot though the DFU functionality has been removed
-and replaced with a USB Mass Storage with [UF2 support](https://github.com/Microsoft/uf2)
-
-Boards with this bootloader can be programmed at https://maker.makecode.com
-using web interface using a graphical programming language or TypeScript (JavaScript with Types).
+This project was initially forked off https://github.com/mmoskal/uf2-stm32f103 though the UF2 functionality has been removed
+and replaced with the ability to load .bin firmware files.
+The size of the bootloader has been reduced to 8KiB.
 
 ## Flashing bootloader from binaries
 
@@ -13,7 +11,7 @@ You will need a STLink/v2 (or other debugger) to flash it.
 * https://github.com/mmoskal/uf2-stm32f103/releases
 * download the latest ZIP file (`uf2-stm32f103-vX.Y.Z.zip`)
 * run: `openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c "program uf2boot-BLUEPILL.bin verify reset exit 0x8000000"`
-* see if `BLUEPILL` drive appears; if not reset the board; the LED should be fading in and out about once per second
+* see if a USB drive appears; if not reset the board twice; the LED should be fading in and out about once per second
 
 ## Build instructions
 The default target is a generic STM32F103 dev board with an LED on PC13, commonly referred to as a "bluepill" board.
@@ -30,8 +28,6 @@ To build other targets, you can override the
 | ----------- | ----------- |----- |
 |`BLUEPILL`   | Cheap dev board | http://wiki.stm32duino.com/index.php?title=Blue_Pill |
 |`MAPLEMINI`  | LeafLabs Maple Mini board and clone derivatives | http://wiki.stm32duino.com/index.php?title=Maple_Mini |
-|`STLINK`     | STLink/v2 hardware clones | https://wiki.paparazziuav.org/wiki/STLink#Clones |
-| `PXT32`     | MakeCode Arcade console (currently disabled on Arcade site) | https://arcade.makecode.com |
 
 
 ## Flash instructions
@@ -51,14 +47,10 @@ Here is an example `local.mk` that changes the default target to the STLink/v2 a
 
 ## Using the bootloader
 ### Building for the bootloader
-The bootloader occupies the lower 16KiB of flash, so your application must offset its flash contents by 16KiB. This can be done by modifying your linker script or flags as appropriate.
+The bootloader occupies the lower 8KiB of flash, so your application must offset its flash contents by 8KiB. This can be done by modifying your linker script or flags as appropriate.
 
 ### Switching to the bootloader
 The bootloader can be built to look for arbitrary patterns, but the default for the STM32F103 target looks for a magic value stored in the RTC backup registers. Writing the magic value and then resetting will run the bootloader instead of the main application.
-
-### WebUSB
-
-The WebUSB isn't currently supported.
 
 ## Licensing
 All contents of the dapboot project are licensed under terms that are compatible with the terms of the GNU Lesser General Public License version 3.
