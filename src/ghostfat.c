@@ -215,11 +215,11 @@ int read_block(uint32_t block_no, uint8_t *data) {
                 data[i] = 0xff;
             }
         }
-        for (int i = 0; i < 256; ++i) {
-            uint32_t v = sectionIdx * 256 + i;
-            if (UF2_FIRST_SECTOR <= v && v <= UF2_LAST_SECTOR)
-                ((uint16_t *)(void *)data)[i] = v == UF2_LAST_SECTOR ? 0xffff : v + 1;
-        }
+        //for (int i = 0; i < 256; ++i) {
+        //    uint32_t v = sectionIdx * 256 + i;
+        //    if (UF2_FIRST_SECTOR <= v && v <= UF2_LAST_SECTOR)
+        //        ((uint16_t *)(void *)data)[i] = v == UF2_LAST_SECTOR ? 0xffff : v + 1;
+        //}
     } else if (block_no < START_CLUSTERS) {
         sectionIdx -= START_ROOTDIR;
         if (sectionIdx == 0) {
@@ -342,7 +342,7 @@ int write_block(uint32_t lba, const uint8_t *copy_from)
 {
     DBG("Write lba: %x", lba);
     target_set_led(1);
-    if(lba > 246) {
+    if(lba > 0x44) {
       write_block_bin(lba, copy_from);
     }
     target_set_led(0);
