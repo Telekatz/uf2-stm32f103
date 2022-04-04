@@ -44,20 +44,6 @@ static const struct usb_device_descriptor dev = {
     .bNumConfigurations = 1,
 };
 
-static const struct usb_interface_descriptor dfu_iface = {
-    .bLength = USB_DT_INTERFACE_SIZE,
-    .bDescriptorType = USB_DT_INTERFACE,
-    .bInterfaceNumber = INTF_DFU,
-    .bAlternateSetting = 0,
-    .bNumEndpoints = 0,
-    .bInterfaceClass = 0xFE,
-    .bInterfaceSubClass = 1,
-    .bInterfaceProtocol = 2,
-    .iInterface = 4,
-
-    .endpoint = NULL,
-};
-
 static const struct usb_endpoint_descriptor msc_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,

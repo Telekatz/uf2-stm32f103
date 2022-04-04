@@ -33,6 +33,18 @@ ifeq ($(TARGET),MAPLEMINI)
 	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
 	ARCH				= STM32F1
 endif
+ifeq ($(TARGET),ERCF-CAN)
+	TARGET_COMMON_DIR	:= ./stm32f103
+	TARGET_SPEC_DIR		:= ./stm32f103/ERCF-CAN
+	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+	ARCH				= STM32F1
+endif
+ifeq ($(TARGET),Clockwork2-CAN)
+	TARGET_COMMON_DIR	:= ./stm32f103
+	TARGET_SPEC_DIR		:= ./stm32f103/Clockwork2-CAN
+	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+	ARCH				= STM32F1
+endif
 ifeq ($(TARGET),STLINK)
 	TARGET_COMMON_DIR	:= ./stm32f103
 	TARGET_SPEC_DIR		:= ./stm32f103/stlink

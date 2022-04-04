@@ -213,6 +213,7 @@ const usbd_driver* target_usb_init(void) {
     }
 #else
     /* Override hard-wired USB pullup to disconnect and reconnect */
+    GPIO_CRH(GPIOA) = 0x44414444;
     gpio_clear(GPIOA, GPIO12);
     int i;
     for (i = 0; i < 800000; i++) {
