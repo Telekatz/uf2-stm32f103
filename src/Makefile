@@ -40,6 +40,7 @@ all: $(BUILD) $(BUILD)/$(BINARY).bin size
 
 $(BUILD):
 	mkdir -p $(BUILD)/stm32f103
+	mkdir -p $(BUILD)/stm32f072
 
 clean::
 	rm -rf build/

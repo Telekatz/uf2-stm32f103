@@ -27,8 +27,8 @@
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/flash.h>
 
-//extern void target_clock_setup(void);
-//extern void target_gpio_setup(void);
+extern void target_clock_setup(void);
+extern void target_gpio_setup(void);
 extern const usbd_driver* target_usb_init(void);
 extern bool target_get_force_bootloader(void);
 extern bool target_get_force_app(void);
@@ -44,7 +44,6 @@ extern void target_set_led(int on);
 
 extern void target_pre_main(void);
 
-#define target_clock_setup()              rcc_clock_setup_in_hse_8mhz_out_72mhz();
 #define target_relocate_vector_table()    SCB_VTOR = APP_BASE_ADDRESS & 0xFFFF;
 #define target_flash_lock()               flash_lock();
 

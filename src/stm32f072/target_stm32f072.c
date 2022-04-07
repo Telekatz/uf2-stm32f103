@@ -58,34 +58,6 @@ static const uint16_t CMD_APP = RTC_BOOTLOADER_JUST_UPLOADED;
 
 //#define USE_HSI 1
 
-void * memcpy(void *dest, const void *src, size_t n)
-{
-   // Typecast src and dest addresses to (char *)
-   char *csrc = (char *)src;
-   char *cdest = (char *)dest;
-
-   // Copy contents of src[] to dest[]
-   for (uint16_t i=0; i<n; i++)
-       cdest[i] = csrc[i];
-   return dest;
-}
-
-size_t strlen(const char *s)
-{
-   size_t len = 0;
-    while(*s != 0) {
-        s++;
-        len++;
-    }
-    return len;
-}
-
-int memcmp(const void *vl, const void *vr, size_t n)
-{
-    const unsigned char *l=vl, *r=vr;
-    for (; n && *l == *r; n--, l++, r++);
-    return n ? *l-*r : 0;
-}
 
 void target_clock_setup(void) {
 #ifdef USE_HSI
@@ -94,8 +66,7 @@ void target_clock_setup(void) {
        it's better than nothing. */
     rcc_clock_setup_in_hsi_out_48mhz();
 #else
-    /* Set system clock to 72 MHz from an external crystal */
-    rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
+    rcc_clock_setup_in_hse_8mhz_out_48mhz();
 #endif
 }
 
@@ -112,12 +83,12 @@ void target_set_led(int on) {
 }
 
 static void sleep_us(int us){
-    for (int i = 0; i < us*10; i++) {
+    for (int i = 0; i < us*2; i++) {
         __asm__("nop");
     }
 }
 
-#if 0
+#ifndef target_gpio_setup()
 void target_gpio_setup(void) {
 
   /* Enable GPIO clocks */
@@ -125,23 +96,29 @@ void target_gpio_setup(void) {
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
 
-    /* Setup LEDs */
 #if HAVE_LED
     {
-        const uint8_t mode = GPIO_MODE_OUTPUT_10_MHZ;
-        const uint8_t conf = (LED_OPEN_DRAIN ? GPIO_CNF_OUTPUT_OPENDRAIN
-                                             : GPIO_CNF_OUTPUT_PUSHPULL);
+        const uint8_t conf = (LED_OPEN_DRAIN ? GPIO_OTYPE_OD
+                                             : GPIO_OTYPE_PP);
         if (LED_OPEN_DRAIN) {
             gpio_set(LED_GPIO_PORT, LED_GPIO_PIN);
         } else {
             gpio_clear(LED_GPIO_PORT, LED_GPIO_PIN);
         }
-        gpio_set_mode(LED_GPIO_PORT, mode, conf, LED_GPIO_PIN);
+
+        gpio_mode_setup(LED_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_GPIO_PIN);
+        gpio_set_output_options(LED_GPIO_PORT, conf, GPIO_OSPEED_LOW, LED_GPIO_PIN);
+
+          /*
+           * We want to set the config only for the pins mentioned in gpios,
+           * but keeping the others, so read out the actual config first.
+           */
+
     }
 #endif
 
     /* Setup the internal pull-up/pull-down for the button */
-#ifdef HAVE_BUTTON
+#ifdef HAVE_BUTTONx
     {
         const uint8_t mode = GPIO_MODE_INPUT;
         const uint8_t conf = GPIO_CNF_INPUT_PULL_UPDOWN;
@@ -170,8 +147,10 @@ void target_gpio_setup(void) {
 #else
     {
         /* Drive the USB DP pin to override the pull-up */
-        gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_10_MHZ,
-                      GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
+
+        gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
+        gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_LOW, GPIO12);
+
     }
 #endif
 
@@ -207,15 +186,19 @@ const usbd_driver* target_usb_init(void) {
     }
 #else
     /* Override hard-wired USB pullup to disconnect and reconnect */
-    GPIO_CRH(GPIOA) = 0x44414444;
+
+    rcc_set_usbclk_source(RCC_HSI48);
+
     gpio_clear(GPIOA, GPIO12);
     int i;
-    for (i = 0; i < 800000; i++) {
+    for (i = 0; i < 80000; i++) {
         __asm__("nop");
     }
 #endif
 
-    return &st_usbfs_v1_usb_driver;
+    //return &st_usbfs_v1_usb_driver;
+
+    return &st_usbfs_v2_usb_driver;
 }
 
 void target_manifest_app(void) {
@@ -236,7 +219,7 @@ bool target_get_force_app(void) {
 bool target_get_force_bootloader(void) {
     /* Enable GPIO clocks */
     //rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
+    //rcc_periph_clock_enable(RCC_GPIOB);
     //rcc_periph_clock_enable(RCC_GPIOC);
 
     bool force = false;
@@ -280,9 +263,11 @@ bool target_get_force_bootloader(void) {
     return force;
 }
 
+/*
 void target_get_serial_number(char* dest, size_t max_chars) {
     desig_get_unique_id_as_string(dest, max_chars+1);
 }
+*/
 
 static uint16_t* get_flash_end(void) {
 #ifdef FLASH_SIZE_OVERRIDE

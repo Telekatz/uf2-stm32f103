@@ -45,7 +45,7 @@ typedef struct {
 } __attribute__((packed)) DirEntry;
 
 static size_t flashSize(void) {
-    return FLASH_SIZE_OVERRIDE;
+    return USER_FLASH_END - USER_FLASH_START;
 }
 
 //#define DBG NOOP
@@ -61,31 +61,20 @@ struct TextFile {
 #define STR0(x) #x
 #define STR(x) STR0(x)
 const char infoUf2File[] = //
-    "UF2 Bootloader " UF2_VERSION "\r\n"
+    "MSC Bootloader " UF2_VERSION "\r\n"
     "Model: " PRODUCT_NAME "\r\n"
-    "Board-ID: " BOARD_ID "\r\n";
-
-const char indexFile[] = //
-    "<!doctype html>\n"
-    "<html>"
-    "<body>"
-    "<script>\n"
-    "location.replace(\"" INDEX_URL "\");\n"
-    "</script>"
-    "</body>"
-    "</html>\n";
+    "Bootloader size: " BOOTLOADER_SIZE "\r\n";
 
 static const struct TextFile info[] = {
-//    {.name = "INFO_UF2TXT", .content = infoUf2File},
-//    {.name = "INDEX   HTM", .content = indexFile},
-//    {.name = "CURRENT UF2"},
+    {.name = "INFO_MSCTXT", .content = infoUf2File},
+    {.name = "CURRENT BIN"},
 };
 #define NUM_INFO (int)(sizeof(info) / sizeof(info[0]))
 
-#define UF2_SIZE (flashSize() * 2)
-#define UF2_SECTORS (UF2_SIZE / 512)
-#define UF2_FIRST_SECTOR (NUM_INFO + 1)
-#define UF2_LAST_SECTOR (uint32_t)(UF2_FIRST_SECTOR + UF2_SECTORS - 1)
+#define BIN_SIZE (flashSize())
+#define BIN_SECTORS (BIN_SIZE / 512)
+#define BIN_FIRST_SECTOR (NUM_INFO + 1)
+#define BIN_LAST_SECTOR (uint32_t)(BIN_FIRST_SECTOR + BIN_SECTORS - 1)
 
 #define RESERVED_SECTORS 1
 #define ROOT_DIR_SECTORS 4
@@ -98,7 +87,7 @@ static const struct TextFile info[] = {
 
 static const FAT_BootBlock BootBlock = {
     .JumpInstruction = {0xeb, 0x3c, 0x90},
-    .OEMInfo = "UF2 UF2 ",
+    .OEMInfo = "MSC MSC ",
     .SectorSize = 512,
     .SectorsPerCluster = 1,
     .ReservedSectors = RESERVED_SECTORS,
@@ -215,51 +204,49 @@ int read_block(uint32_t block_no, uint8_t *data) {
                 data[i] = 0xff;
             }
         }
-        //for (int i = 0; i < 256; ++i) {
-        //    uint32_t v = sectionIdx * 256 + i;
-        //    if (UF2_FIRST_SECTOR <= v && v <= UF2_LAST_SECTOR)
-        //        ((uint16_t *)(void *)data)[i] = v == UF2_LAST_SECTOR ? 0xffff : v + 1;
-        //}
+#if (FILE_INFO == 1)
+        for (int i = 0; i < 256; ++i) {
+            uint32_t v = sectionIdx * 512 + i;
+            if (BIN_FIRST_SECTOR <= v && v <= BIN_LAST_SECTOR)
+                ((uint16_t *)(void *)data)[i] = v == BIN_LAST_SECTOR ? 0xffff : v + 1;
+        }
+#endif
     } else if (block_no < START_CLUSTERS) {
         sectionIdx -= START_ROOTDIR;
         if (sectionIdx == 0) {
-            //DirEntry *d = (void *)data;
-            //padded_memcpy(d->name, (const char *)BootBlock.VolumeLabel, 11);
-            //d->attrs = 0x28;
-            //for (int i = 0; i < NUM_INFO; ++i) {
-            //    d++;
-            //    const struct TextFile *inf = &info[i];
-            //    d->size = inf->content ? strlen(inf->content) : UF2_SIZE;
-            //    d->startCluster = i + 2;
-            //    padded_memcpy(d->name, inf->name, 11);
-            //}
+#if (FILE_INFO == 1)
+            DirEntry *d = (void *)data;
+            padded_memcpy(d->name, (const char *)BootBlock.VolumeLabel, 11);
+            d->attrs = 0x28;
+            for (int i = 0; i < NUM_INFO; ++i) {
+                d++;
+                const struct TextFile *inf = &info[i];
+                d->size = inf->content ? strlen(inf->content) : BIN_SIZE;
+                d->startCluster = i + 2;
+                d->attrs = 0x01;
+                padded_memcpy(d->name, inf->name, 11);
+            }
+#endif
         }
     } else {
         sectionIdx -= START_CLUSTERS;
-/*
-//        if (sectionIdx < NUM_INFO - 1) {
-        if (sectionIdx < NUM_INFO) {
+#if (FILE_INFO == 1)
+        if (sectionIdx < NUM_INFO - 1) {
             memcpy(data, info[sectionIdx].content, strlen(info[sectionIdx].content));
         } else {
             sectionIdx -= NUM_INFO - 1;
-            uint32_t addr = sectionIdx * 256;
+            uint32_t addr = sectionIdx * 512;
             if (addr < flashSize()) {
-                UF2_Block *bl = (void *)data;
-                bl->magicStart0 = UF2_MAGIC_START0;
-                bl->magicStart1 = UF2_MAGIC_START1;
-                bl->magicEnd = UF2_MAGIC_END;
-                bl->blockNo = sectionIdx;
-                bl->numBlocks = flashSize() / 256;
-                bl->targetAddr = addr | 0x8000000;
-                bl->payloadSize = 256;
-                memcpy(bl->data, (void *)addr, bl->payloadSize);
+
+                memcpy(data, (void *)(addr + APP_BASE_ADDRESS), 512);
             }
-        }*/
+        }
+#endif
     }
 
     return 0;
 }
-
+/*
 static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet, WriteState *state) {
     const UF2_Block *bl = (const void *)data;
 
@@ -316,6 +303,7 @@ static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet,
     }
 
 }
+*/
 
 static void write_block_bin(uint32_t block_no, const uint8_t *data) {
     static bool binStart=0;

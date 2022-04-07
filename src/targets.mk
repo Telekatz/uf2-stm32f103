@@ -27,6 +27,12 @@ ifeq ($(TARGET),BLUEPILL)
 	ARCH				= STM32F1
 	DEFS				+= -DHAVE_LED=1 -DLED_GPIO_PORT=GPIOC -DLED_GPIO_PIN=GPIO13 -DLED_OPEN_DRAIN=1 -DUSES_GPIOC=1
 endif
+ifeq ($(TARGET),BLUEPILL_072)
+	TARGET_COMMON_DIR	:= ./stm32f072
+	TARGET_SPEC_DIR		:= ./stm32f072/bluepill
+	LDSCRIPT			:= ./stm32f072/stm32f072x8.ld
+	ARCH				= STM32F0
+endif
 ifeq ($(TARGET),MAPLEMINI)
 	TARGET_COMMON_DIR	:= ./stm32f103
 	TARGET_SPEC_DIR		:= ./stm32f103/maplemini
@@ -39,11 +45,17 @@ ifeq ($(TARGET),ERCF-CAN)
 	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
 	ARCH				= STM32F1
 endif
-ifeq ($(TARGET),Clockwork2-CAN)
+ifeq ($(TARGET),Clockwork2-CAN_103)
 	TARGET_COMMON_DIR	:= ./stm32f103
 	TARGET_SPEC_DIR		:= ./stm32f103/Clockwork2-CAN
 	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
 	ARCH				= STM32F1
+endif
+ifeq ($(TARGET),Clockwork2-CAN_072)
+	TARGET_COMMON_DIR	:= ./stm32f072
+	TARGET_SPEC_DIR		:= ./stm32f072/Clockwork2-CAN
+	LDSCRIPT			:= ./stm32f072/stm32f072x8.ld
+	ARCH				= STM32F0
 endif
 ifeq ($(TARGET),STLINK)
 	TARGET_COMMON_DIR	:= ./stm32f103

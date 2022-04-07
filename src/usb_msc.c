@@ -242,7 +242,6 @@ static void set_sbc_status(usbd_mass_storage *ms,
 			   enum sbc_asc asc,
 			   enum sbc_ascq ascq)
 {
-	LOG("SBC st %d %d %d", key, asc, ascq);
 	ms->sense.key = (uint8_t) key;
 	ms->sense.asc = (uint8_t) asc;
 	ms->sense.ascq = (uint8_t) ascq;
@@ -524,8 +523,6 @@ static void scsi_command(usbd_mass_storage *ms,
 		trans->byte_count = 0;
 	}
 
-	LOG("SCSI %x", trans->cbw.cbw.CBWCB[0]);
-
 	switch (trans->cbw.cbw.CBWCB[0]) {
 	case SCSI_TEST_UNIT_READY:
 	case SCSI_SEND_DIAGNOSTIC:
@@ -771,9 +768,9 @@ int msc_started = 0;
 /** @brief Handle various control requests related to the msc storage
  *	   interface.
  */
-static int msc_control_request(usbd_device *usbd_dev,
-			       struct usb_setup_data *req, uint8_t **buf,
-			       uint16_t *len,
+static enum usbd_request_return_codes
+msc_control_request(usbd_device *usbd_dev,
+		    struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 			       usbd_control_complete_callback *complete)
 {
 	(void)complete;
@@ -781,11 +778,9 @@ static int msc_control_request(usbd_device *usbd_dev,
 
 	switch (req->bRequest) {
 	case USB_MSC_REQ_BULK_ONLY_RESET:
-		LOG("MSC RESET");
 		/* Do any special reset code here. */
 		return USBD_REQ_HANDLED;
 	case USB_MSC_REQ_GET_MAX_LUN:
-		LOG("GET MAX LUN");
 		msc_started = 1;
 		/* Return the number of LUNs.  We use 0. */
 		*buf[0] = 0;

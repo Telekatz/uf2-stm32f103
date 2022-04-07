@@ -16,19 +16,28 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <libopencm3/usb/usbd.h>
-#include "webusb.h"
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/rtc.h>
+#include <libopencm3/stm32/pwr.h>
+#include <stdint.h>
 
-#include "usb_conf.h"
-#include "config.h"
+#include "backup.h"
 
-const struct webusb_platform_descriptor webusb_platform = {
-    .bLength = WEBUSB_PLATFORM_DESCRIPTOR_SIZE,
-    .bDescriptorType = USB_DT_DEVICE_CAPABILITY,
-    .bDevCapabilityType = USB_DC_PLATFORM,
-    .bReserved = 0,
-    .platformCapabilityUUID = WEBUSB_UUID,
-    .bcdVersion = 0x0100,
-    .bVendorCode = WEBUSB_VENDOR_CODE,
-    .iLandingPage = 1
-};
+void backup_write(uint16_t value) {
+    //Todo: stm32f072
+
+  rcc_periph_clock_enable(RCC_PWR);
+
+  pwr_disable_backup_domain_write_protect();
+  PWR_CR |= PWR_CR_DBP;
+  RTC_BKPXR(4) = value;
+  pwr_enable_backup_domain_write_protect();
+  PWR_CR &= ~PWR_CR_DBP;
+
+}
+
+uint16_t backup_read(void) {
+  uint16_t value = RTC_BKPXR(4);
+  return value;
+}
+

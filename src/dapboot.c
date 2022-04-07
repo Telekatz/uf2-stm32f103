@@ -23,7 +23,6 @@
 #include "dapboot.h"
 #include "target.h"
 #include "usb_conf.h"
-#include "webusb.h"
 #include "config.h"
 
 #include <libopencm3/usb/msc.h>
@@ -72,7 +71,6 @@ int main(void) {
     
     /* Setup clocks */
     target_clock_setup();
-
 
 #ifdef DEVICE_DMESG
     trace_setup();
