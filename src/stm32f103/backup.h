@@ -28,6 +28,6 @@ enum BackupRegister {
 };
 
 extern void backup_write(uint16_t value);
-extern uint16_t backup_read();
+extern uint16_t backup_read(void);
 
 #endif

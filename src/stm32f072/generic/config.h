@@ -19,11 +19,15 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08004000
-#define FLASH_SIZE_OVERRIDE (512*1024)
-#define FLASH_PAGE_SIZE  2048
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+
+#define APP_BASE_ADDRESS      0x08004000
+#define FLASH_SIZE_OVERRIDE   0x10000
+#define FLASH_PAGE_SIZE       2048
+
+#define FILE_INFO 1
+#define PRODUCT_NAME          "STM32F072"
+#define VOLUME_LABEL          "STM32F072"
+#define BOOTLOADER_SIZE       "16k"
 
 #ifndef HAVE_LED
 #define HAVE_LED 0
@@ -37,6 +41,18 @@
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
 
-#define UF2_FAMILY 0x5ee21072
+#define DOUBLE_TAP
+
+
+/*
+#define target_gpio_setup()     {\
+                                    rcc_periph_clock_enable(RCC_GPIOA);\
+                                    rcc_periph_clock_enable(RCC_GPIOB);\
+                                    rcc_periph_clock_enable(RCC_GPIOC);\
+                                    GPIO_MODER(GPIOC) = 0x4000000;\
+                                    GPIO_MODER(GPIOA) = 0x29000000;\
+                                    GPIO_OSPEEDR(GPIOA) = 0xc000000;\
+                                  }
+*/
 
 #endif

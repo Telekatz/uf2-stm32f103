@@ -19,11 +19,15 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08004000
+#define APP_BASE_ADDRESS 0x08002000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+
+#define FILE_INFO 0
+#define PRODUCT_NAME          "STM32F103"
+#define VOLUME_LABEL          "STM32F103"
+#define BOOTLOADER_SIZE       "8k"
+
 
 #ifndef HAVE_LED
 #define HAVE_LED 0
@@ -37,6 +41,10 @@
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
 
-#define UF2_FAMILY 0x5ee21072
+#define DOUBLE_TAP
+
+#define target_gpio_setup()     {\
+                                  rcc_periph_clock_enable(RCC_GPIOA);\
+                                  }
 
 #endif

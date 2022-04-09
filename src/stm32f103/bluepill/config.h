@@ -22,8 +22,11 @@
 #define APP_BASE_ADDRESS 0x08002000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+
+#define FILE_INFO 0
+#define PRODUCT_NAME          "Bluepill"
+#define VOLUME_LABEL          "Bluepill"
+#define BOOTLOADER_SIZE       "8k"
 
 #ifndef HAVE_LED
 #define HAVE_LED 0
@@ -36,15 +39,6 @@
 #ifndef HAVE_USB_PULLUP_CONTROL
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
-
-#define UF2_FAMILY 0x5ee21072
-
-#undef VOLUME_LABEL
-#define VOLUME_LABEL "BLUEPILL"
-#undef PRODUCT_NAME
-#define PRODUCT_NAME "Blue Pill STM32F103xB"
-#undef BOARD_ID
-#define BOARD_ID "STM32F103-blue-pill-v0"
 
 #define DOUBLE_TAP
 

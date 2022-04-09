@@ -24,7 +24,7 @@
 /* load optional platform dependent initialization routines */
 
 /* Symbols exported by the linker script(s): */
-extern unsigned _data_loadaddr, _data, _edata, _ebss, _stack;
+//extern unsigned _data_loadaddr, _data, _edata, _ebss, _stack;
 typedef void (*funcp_t) (void);
 extern funcp_t __preinit_array_start, __preinit_array_end;
 extern funcp_t __init_array_start, __init_array_end;

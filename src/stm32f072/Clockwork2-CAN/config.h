@@ -25,7 +25,7 @@
 #define FLASH_PAGE_SIZE       2048
 
 #define FILE_INFO 1
-#define PRODUCT_NAME          "Clockwork2 CAN"
+#define PRODUCT_NAME          "Clockwork2 CAN STM32F072"
 #define VOLUME_LABEL          "CW2 CAN"
 #define BOOTLOADER_SIZE       "16k"
 
@@ -42,8 +42,8 @@
 
 #define DOUBLE_TAP
 
-
-//#define target_gpio_setup()     {\
+#if 0
+#define target_gpio_setup()     {\
                                     rcc_periph_clock_enable(RCC_GPIOA);\
                                     rcc_periph_clock_enable(RCC_GPIOB);\
                                     rcc_periph_clock_enable(RCC_GPIOC);\
@@ -51,6 +51,6 @@
                                     GPIO_MODER(GPIOA) = 0x29000000;\
                                     GPIO_OSPEEDR(GPIOA) = 0xc000000;\
                                   }
-
+#endif
 
 #endif

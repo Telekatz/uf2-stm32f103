@@ -88,7 +88,7 @@ static void sleep_us(int us){
     }
 }
 
-#ifndef target_gpio_setup()
+#ifndef target_gpio_setup
 void target_gpio_setup(void) {
 
   /* Enable GPIO clocks */

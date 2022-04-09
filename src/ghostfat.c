@@ -44,9 +44,11 @@ typedef struct {
     uint32_t size;
 } __attribute__((packed)) DirEntry;
 
+#if (FILE_INFO == 1)
 static size_t flashSize(void) {
     return USER_FLASH_END - USER_FLASH_START;
 }
+#endif
 
 //#define DBG NOOP
 #define DBG DMESG
@@ -214,10 +216,11 @@ int read_block(uint32_t block_no, uint8_t *data) {
     } else if (block_no < START_CLUSTERS) {
         sectionIdx -= START_ROOTDIR;
         if (sectionIdx == 0) {
-#if (FILE_INFO == 1)
+
             DirEntry *d = (void *)data;
             padded_memcpy(d->name, (const char *)BootBlock.VolumeLabel, 11);
             d->attrs = 0x28;
+#if (FILE_INFO == 1)
             for (int i = 0; i < NUM_INFO; ++i) {
                 d++;
                 const struct TextFile *inf = &info[i];
