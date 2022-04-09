@@ -15,44 +15,65 @@
 ## CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ifeq ($(TARGET),STM32F103)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/generic
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+	CPU              	:= stm32f103
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/generic
+	LDSCRIPT			:= ./$(CPU)/stm32f103x8.ld
 	ARCH				= STM32F1
+	
+endif
+ifeq ($(TARGET),STM32F072)
+	CPU              	:= stm32f072
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/generic
+	LDSCRIPT			:= ./$(CPU)/stm32f072x8.ld
+	ARCH				= STM32F0
+	
 endif
 ifeq ($(TARGET),BLUEPILL)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/bluepill
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+	CPU              	= stm32f103
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/bluepill
+	LDSCRIPT			:= ./$(CPU)/stm32f103x8.ld
 	ARCH				= STM32F1
 	DEFS				+= -DHAVE_LED=1 -DLED_GPIO_PORT=GPIOC -DLED_GPIO_PIN=GPIO13 -DLED_OPEN_DRAIN=1 -DUSES_GPIOC=1
 endif
+ifeq ($(TARGET),BLUEPILL_072)
+	CPU              	:= stm32f072
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/bluepill
+	LDSCRIPT			:= ./$(CPU)/stm32f072x8.ld
+	ARCH				= STM32F0
+endif
 ifeq ($(TARGET),MAPLEMINI)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/maplemini
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+	CPU              	:= stm32f103
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/maplemini
+	LDSCRIPT			:= ./$(CPU)/stm32f103x8.ld
 	ARCH				= STM32F1
 endif
-ifeq ($(TARGET),STLINK)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/stlink
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+ifeq ($(TARGET),ERCF-CAN)
+	CPU              	:= stm32f103
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/ERCF-CAN
+	LDSCRIPT			:= ./$(CPU)/stm32f103x8_16k.ld
 	ARCH				= STM32F1
 endif
-ifeq ($(TARGET),PXT32)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/pxt32
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
+ifeq ($(TARGET),Clockwork2-CAN_103)
+	CPU              	:= stm32f103
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/Clockwork2-CAN
+	LDSCRIPT			:= ./$(CPU)/stm32f103x8_16k.ld
 	ARCH				= STM32F1
-	DEFS				+= -DHAVE_LED=1 -DLED_GPIO_PORT=GPIOB -DLED_GPIO_PIN=GPIO11 -DLED_OPEN_DRAIN=1 -DUSES_GPIOB=1
 endif
-ifeq ($(TARGET),JACDAC)
-	TARGET_COMMON_DIR	:= ./stm32f103
-	TARGET_SPEC_DIR		:= ./stm32f103/jacdac
-	LDSCRIPT			:= ./stm32f103/stm32f103x8.ld
-	ARCH				= STM32F1
-	DEFS				+= -DHAVE_LED=1 -DLED_GPIO_PORT=GPIOB -DLED_GPIO_PIN=GPIO13 -DLED_OPEN_DRAIN=0
+ifeq ($(TARGET),Clockwork2-CAN_072)
+	CPU              	:= stm32f072
+	TARGET_COMMON_DIR	:= ./$(CPU)
+	TARGET_SPEC_DIR		:= ./$(CPU)/Clockwork2-CAN
+	LDSCRIPT			:= ./$(CPU)/stm32f072x8.ld
+	ARCH				= STM32F0
 endif
+
 
 ifndef ARCH
 $(error Unknown target $(TARGET))

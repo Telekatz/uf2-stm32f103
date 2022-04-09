@@ -93,7 +93,7 @@ LIB_DIR     = $(OPENCM3_DIR)/lib
 
 CFLAGS      += -Os -g -std=gnu11
 CFLAGS      += -Wextra -Wshadow -Wimplicit-function-declaration
-CFLAGS      += -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+CFLAGS      += -Wredundant-decls -Wstrict-prototypes
 CFLAGS      += -fno-common -ffunction-sections -fdata-sections
 
 ####################################################################
@@ -107,7 +107,7 @@ CXXFLAGS    += -fno-common -ffunction-sections -fdata-sections
 # C & C++ preprocessor common flags
 
 CPPFLAGS    += -MD
-CPPFLAGS    += -Wall -Wundef
+CPPFLAGS    += -Wall 
 CPPFLAGS    += -I$(INCLUDE_DIR) $(DEFS)
 
 ####################################################################
@@ -163,9 +163,10 @@ locm3: $(LIB_DIR)/lib$(LIBNAME).a
 
 %.bin: %.elf
 	@#printf "  OBJCOPY $(*).bin\n"
-	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).tmpbin
-	$(Q)(cat $(*).tmpbin; cat /dev/zero) | head -c 8192 > $(*).bin
-
+	#$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).tmpbin
+	#$(Q)(cat $(*).tmpbin; cat /dev/zero) | head -c 8192 > $(*).bin
+	$(Q)$(OBJCOPY) -Obinary $(*).elf $(*).bin
+	
 %.hex: %.elf
 	@#printf "  OBJCOPY $(*).hex\n"
 	$(Q)$(OBJCOPY) -Oihex $(*).elf $(*).hex

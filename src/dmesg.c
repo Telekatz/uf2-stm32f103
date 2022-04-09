@@ -26,12 +26,13 @@ DEALINGS IN THE SOFTWARE.
 #include <string.h>
 #include "libopencm3/cm3/cortex.h"
 
+#ifdef DEVICE_DMESG
 #include <libopencm3/stm32/dbgmcu.h>
 #include <libopencm3/cm3/scs.h>
 #include <libopencm3/cm3/tpiu.h>
 #include <libopencm3/cm3/itm.h>
 
-#ifdef DEVICE_DMESG
+
 void trace_setup(void)
 {
   /* Enable trace subsystem (we'll use ITM and TPIU). */

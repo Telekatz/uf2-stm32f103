@@ -16,24 +16,28 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef CONFIG_H_INCLUDED
-#define CONFIG_H_INCLUDED
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/rtc.h>
+#include <libopencm3/stm32/pwr.h>
+#include <stdint.h>
 
-#define APP_BASE_ADDRESS 0x08004000
-#define FLASH_SIZE_OVERRIDE 0x20000
-#define FLASH_PAGE_SIZE  1024
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+#include "backup.h"
 
-#define HAVE_LED 1
-#define LED_GPIO_PORT GPIOA
-#define LED_GPIO_PIN  GPIO9
-#define LED_OPEN_DRAIN 0
+void backup_write(uint16_t value) {
+    //Todo: stm32f072
 
-#define HAVE_BUTTON 0
+  rcc_periph_clock_enable(RCC_PWR);
 
-#define HAVE_USB_PULLUP_CONTROL 0
+  pwr_disable_backup_domain_write_protect();
+  PWR_CR |= PWR_CR_DBP;
+  RTC_BKPXR(4) = value;
+  pwr_enable_backup_domain_write_protect();
+  PWR_CR &= ~PWR_CR_DBP;
 
-#define USES_GPIOA 1
+}
 
-#endif
+uint16_t backup_read(void) {
+  uint16_t value = RTC_BKPXR(4);
+  return value;
+}
+

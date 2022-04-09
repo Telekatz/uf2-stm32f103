@@ -19,12 +19,11 @@
 #include <string.h>
 #include <libopencm3/cm3/vector.h>
 
-#include "uf2.h"
 #include "dapboot.h"
 #include "target.h"
 #include "usb_conf.h"
-#include "webusb.h"
 #include "config.h"
+#include "ghostfat.h"
 
 #include <libopencm3/usb/msc.h>
 
@@ -73,7 +72,6 @@ int main(void) {
     /* Setup clocks */
     target_clock_setup();
 
-
 #ifdef DEVICE_DMESG
     trace_setup();
 #endif
@@ -82,19 +80,10 @@ int main(void) {
     target_gpio_setup();
 
     if (target_get_force_bootloader() || !appValid) {
-        /* Setup USB */
-        {
-            //char serial[USB_SERIAL_NUM_LENGTH+1];
-            //serial[0] = '\0';
-            //target_get_serial_number(serial, USB_SERIAL_NUM_LENGTH);
-            //usb_set_serial_number(serial);
-        }
 
         usbd_device* usbd_dev = usb_setup();
-        //dfu_setup(usbd_dev, &target_manifest_app, NULL, NULL);
        	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "A", "MSC",
-		    "1", UF2_NUM_BLOCKS, read_block, write_block);
-        //winusb_setup(usbd_dev);
+		    "1", BIN_NUM_BLOCKS, read_block, write_block);
 
         int cycleCount = 0;
         int br = 500;
@@ -114,9 +103,6 @@ int main(void) {
                     d = -2;
                 else if (br < 10)
                     d = 2;
-
-                //int v = msTimer % 500;
-                //target_set_led(v < 50);
 
                 ghostfat_1ms();
 

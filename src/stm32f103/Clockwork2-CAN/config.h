@@ -19,32 +19,44 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08002000
+#define APP_BASE_ADDRESS 0x08004000
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
 
-#define FILE_INFO 0
-#define PRODUCT_NAME          "STM32F103"
-#define VOLUME_LABEL          "STM32F103"
-#define BOOTLOADER_SIZE       "8k"
+#define FILE_INFO 1
+#define PRODUCT_NAME          "Clockwork2 CAN STM32F103"
+#define VOLUME_LABEL          "CW2 CAN"
+#define BOOTLOADER_SIZE       "16k"
 
+#define HAVE_LED 1
+#define LED_GPIO_PORT GPIOB
+#define LED_GPIO_PIN  GPIO5
 
-#ifndef HAVE_LED
-#define HAVE_LED 0
-#endif
-
-#ifndef HAVE_BUTTON
-#define HAVE_BUTTON 0
-#endif
+#define LED_OPEN_DRAIN 0
 
 #ifndef HAVE_USB_PULLUP_CONTROL
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
 
+//#define USES_GPIOA 1
+//#define USES_GPIOB 1
+//#define USES_GPIOC 0
+
 #define DOUBLE_TAP
 
 #define target_gpio_setup()     {\
                                   rcc_periph_clock_enable(RCC_GPIOA);\
+                                  rcc_periph_clock_enable(RCC_GPIOB);\
+                                  rcc_periph_clock_enable(RCC_AFIO); \
+                                   GPIO_CRL(GPIOB) = 0x44144444;\
                                   }
+#if 0
+#define target_gpio_setup()     {\
+                                  rcc_periph_clock_enable(RCC_GPIOA);\
+                                  rcc_periph_clock_enable(RCC_GPIOB);\
+gpio_primary_remap(AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST, 0);\
+                                  }
+
+#endif
 
 #endif

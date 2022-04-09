@@ -19,28 +19,38 @@
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
 
-#define APP_BASE_ADDRESS 0x08004000
-#define FLASH_SIZE_OVERRIDE 0x20000
-#define FLASH_PAGE_SIZE  1024
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+
+#define APP_BASE_ADDRESS      0x08004000
+#define FLASH_SIZE_OVERRIDE   0x20000
+#define FLASH_PAGE_SIZE       2048
+
+#define FILE_INFO 1
+#define PRODUCT_NAME          "Clockwork2 CAN STM32F072"
+#define VOLUME_LABEL          "CW2 CAN"
+#define BOOTLOADER_SIZE       "16k"
+
 
 #define HAVE_LED 1
-#define HAVE_BUTTON 0
+#define LED_GPIO_PORT GPIOB
+#define LED_GPIO_PIN  GPIO5
+
+#define LED_OPEN_DRAIN 0
 
 #ifndef HAVE_USB_PULLUP_CONTROL
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
 
-#define UF2_FAMILY 0x5ee21072
+#define DOUBLE_TAP
 
-#undef VOLUME_LABEL
-#define VOLUME_LABEL "JACDAC"
-#undef PRODUCT_NAME
-#define PRODUCT_NAME "JACDAC Feather STM32F103CB"
-#undef BOARD_ID
-#define BOARD_ID "STM32F103-jacdac-feather-v0"
-
-#define CRYSTAL_16MHZ 1
+#if 0
+#define target_gpio_setup()     {\
+                                    rcc_periph_clock_enable(RCC_GPIOA);\
+                                    rcc_periph_clock_enable(RCC_GPIOB);\
+                                    rcc_periph_clock_enable(RCC_GPIOC);\
+                                    GPIO_MODER(GPIOC) = 0x4000000;\
+                                    GPIO_MODER(GPIOA) = 0x29000000;\
+                                    GPIO_OSPEEDR(GPIOA) = 0xc000000;\
+                                  }
+#endif
 
 #endif

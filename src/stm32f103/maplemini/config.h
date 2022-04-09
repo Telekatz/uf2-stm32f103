@@ -23,6 +23,11 @@
 #define FLASH_SIZE_OVERRIDE 0x20000
 #define FLASH_PAGE_SIZE  1024
 
+#define FILE_INFO 0
+#define PRODUCT_NAME          "MapleMini"
+#define VOLUME_LABEL          "MapleMini"
+#define BOOTLOADER_SIZE       "8k"
+
 #define HAVE_LED 1
 #define LED_GPIO_PORT GPIOB
 #define LED_GPIO_PIN  GPIO1
@@ -33,8 +38,6 @@
    sample PB8 on boot, since pulling it high will already
    trigger the ROM serial bootloader and prevent us from
    running anyways. */
-
-#define UF2_FAMILY 0x5ee21072
 
 #define HAVE_USB_PULLUP_CONTROL 1
 #define USB_PULLUP_GPIO_PORT GPIOB

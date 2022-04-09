@@ -37,7 +37,7 @@ void backup_write(uint16_t value) {
 
 }
 
-uint16_t backup_read() {
+uint16_t backup_read(void) {
 
     uint16_t value = RTC_BKP_DR(9);
     return value;

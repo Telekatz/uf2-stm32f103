@@ -20,23 +20,30 @@
 #define CONFIG_H_INCLUDED
 
 #define APP_BASE_ADDRESS 0x08004000
-#define FLASH_SIZE_OVERRIDE (512*1024)
-#define FLASH_PAGE_SIZE  2048
-#define DFU_UPLOAD_AVAILABLE 1
-#define DFU_DOWNLOAD_AVAILABLE 1
+#define FLASH_SIZE_OVERRIDE 0x20000
+#define FLASH_PAGE_SIZE  1024
 
-#ifndef HAVE_LED
-#define HAVE_LED 0
-#endif
+#define FILE_INFO 1
+#define PRODUCT_NAME          "ERCF CAN STM32F103"
+#define VOLUME_LABEL          "ERCF CAN"
+#define BOOTLOADER_SIZE       "16k"
 
-#ifndef HAVE_BUTTON
-#define HAVE_BUTTON 0
-#endif
+#define HAVE_LED 1
+#define LED_GPIO_PORT GPIOB
+#define LED_GPIO_PIN  GPIO12
+
+#define LED_OPEN_DRAIN 0
 
 #ifndef HAVE_USB_PULLUP_CONTROL
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif
 
-#define UF2_FAMILY 0x5ee21072
+#define DOUBLE_TAP
+
+#define target_gpio_setup()     {\
+                                  rcc_periph_clock_enable(RCC_GPIOA);\
+                                  rcc_periph_clock_enable(RCC_GPIOB);\
+                                   GPIO_CRH(GPIOB) = 0x44414444;\
+                                  }
 
 #endif

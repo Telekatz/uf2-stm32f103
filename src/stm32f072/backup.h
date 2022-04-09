@@ -16,15 +16,10 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef WINUSB_H_INCLUDED
-#define WINUSB_H_INCLUDED
+#ifndef BACKUP_H_INCLUDED
+#define BACKUP_H_INCLUDED
 
-#include "winusb_defs.h"
-
-/* Arbitrary, but must be equivalent to the last character in
-   the special OS descriptor string */
-#define WINUSB_MS_VENDOR_CODE 0x21
-
-extern void winusb_setup(usbd_device* usbd_dev);
+extern void backup_write(uint16_t value);
+extern uint16_t backup_read(void);
 
 #endif

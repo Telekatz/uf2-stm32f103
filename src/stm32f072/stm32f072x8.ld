@@ -23,9 +23,9 @@
 /* 8k for the bootloader */
 MEMORY
 {
-	rom (rx) : ORIGIN = 0x08004000, LENGTH = 100K
-	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 20K
+    rom (rx) : ORIGIN = 0x08000000, LENGTH = 16K
+    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 8K
 }
 
 /* Include the common ld script. */
-INCLUDE libopencm3_stm32f1.ld
+INCLUDE cortex-m-generic.ld
