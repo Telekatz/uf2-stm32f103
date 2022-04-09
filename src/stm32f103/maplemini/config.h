@@ -39,8 +39,6 @@
    trigger the ROM serial bootloader and prevent us from
    running anyways. */
 
-#define UF2_FAMILY 0x5ee21072
-
 #define HAVE_USB_PULLUP_CONTROL 1
 #define USB_PULLUP_GPIO_PORT GPIOB
 #define USB_PULLUP_GPIO_PIN  GPIO9

@@ -34,8 +34,6 @@
 
 #define LED_OPEN_DRAIN 0
 
-#define UF2_FAMILY 0x5ee21072
-
 #ifndef HAVE_USB_PULLUP_CONTROL
 #define HAVE_USB_PULLUP_CONTROL 0
 #endif

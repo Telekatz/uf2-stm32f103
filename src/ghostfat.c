@@ -1,9 +1,10 @@
 
-#include "uf2.h"
 
 #include <string.h>
 #include "target.h"
 #include "dmesg.h"
+#include "ghostfat.h"
+#include "config.h"
 
 typedef struct {
     uint8_t JumpInstruction[3];
@@ -58,12 +59,12 @@ struct TextFile {
     const char *content;
 };
 
-#define NUM_FAT_BLOCKS UF2_NUM_BLOCKS
+#define NUM_FAT_BLOCKS BIN_NUM_BLOCKS
 
 #define STR0(x) #x
 #define STR(x) STR0(x)
 const char infoUf2File[] = //
-    "MSC Bootloader " UF2_VERSION "\r\n"
+    "MSC Bootloader " MSC_VERSION "\r\n"
     "Model: " PRODUCT_NAME "\r\n"
     "Bootloader size: " BOOTLOADER_SIZE "\r\n";
 
@@ -249,64 +250,7 @@ int read_block(uint32_t block_no, uint8_t *data) {
 
     return 0;
 }
-/*
-static void write_block_core(uint32_t block_no, const uint8_t *data, bool quiet, WriteState *state) {
-    const UF2_Block *bl = (const void *)data;
 
-    (void)block_no;
-
-    // DBG("Write magic: %x", bl->magicStart0);
-
-    if (!is_uf2_block(bl) || !UF2_IS_MY_FAMILY(bl)) {
-        return;
-    }
-
-    if ((bl->flags & UF2_FLAG_NOFLASH) || bl->payloadSize > 256 || (bl->targetAddr & 0xff) ||
-        bl->targetAddr < USER_FLASH_START || bl->targetAddr + bl->payloadSize > USER_FLASH_END) {
-        DBG("Skip block at %x", bl->targetAddr);
-        // this happens when we're trying to re-flash CURRENT.UF2 file previously
-        // copied from a device; we still want to count these blocks to reset properly
-    } else {
-        // logval("write block at", bl->targetAddr);
-        DBG("Write block at %x", bl->targetAddr);
-        flash_write(bl->targetAddr, bl->data, bl->payloadSize);
-    }
-
-    bool isSet = false;
-
-    if (state && bl->numBlocks) {
-        if (state->numBlocks != bl->numBlocks) {
-            if (bl->numBlocks >= MAX_BLOCKS || state->numBlocks)
-                state->numBlocks = 0xffffffff;
-            else
-                state->numBlocks = bl->numBlocks;
-        }
-        if (bl->blockNo < MAX_BLOCKS) {
-            uint8_t mask = 1 << (bl->blockNo % 8);
-            uint32_t pos = bl->blockNo / 8;
-            if (!(state->writtenMask[pos] & mask)) {
-                // logval("incr", state->numWritten);
-                state->writtenMask[pos] |= mask;
-                state->numWritten++;
-            }
-            if (state->numWritten >= state->numBlocks) {
-                // wait a little bit before resetting, to avoid Windows transmit error
-                // https://github.com/Microsoft/uf2-samd21/issues/11
-                if (!quiet) {
-                    uf2_timer_start(30);
-                    isSet = true;
-                }
-            }
-        }
-        //DBG("wr %d=%d (of %d)", state->numWritten, bl->blockNo, bl->numBlocks);
-    }
-
-    if (!isSet && !quiet) {
-        uf2_timer_start(500);
-    }
-
-}
-*/
 
 static void write_block_bin(uint32_t block_no, const uint8_t *data) {
     static bool binStart=0;
@@ -327,7 +271,6 @@ static void write_block_bin(uint32_t block_no, const uint8_t *data) {
 
 }
 
-WriteState wrState;
 
 int write_block(uint32_t lba, const uint8_t *copy_from)
 {
